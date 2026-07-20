@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hasan Gmail Pro</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&display=swap');
+        
+        body { 
+            background: #050505; color: #fff; font-family: 'Poppins', sans-serif; 
+            display: flex; justify-content: center; align-items: flex-start; 
+            min-height: 100vh; margin: 0; padding-top: 20px;
+        }
+        .container { 
+            width: 95%; max-width: 400px; background: #111; padding: 20px; 
+            border-radius: 25px; border: 1px solid #333; text-align: center;
+        }
+        .banner { 
+            font-size: 1.8rem; font-weight: 800; margin-bottom: 20px;
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text; color: transparent; text-transform: uppercase;
+        }
+        input { 
+            width: 100%; padding: 18px; margin: 15px 0; border-radius: 12px; border: 1px solid #444;
+            background: #000; color: #ffd700; text-align: center; font-size: 1rem; box-sizing: border-box;
+        }
+        .btn-premium { 
+            background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000; font-weight: 800;
+            padding: 18px; border: none; border-radius: 12px; cursor: pointer; width: 100%;
+            margin-bottom: 12px; font-size: 1rem; transition: 0.3s;
+        }
+        .btn-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .btn-small { 
+            flex: 1; background: #222; color: #fff; padding: 15px; border: none; 
+            border-radius: 10px; font-weight: 600; cursor: pointer;
+        }
+        .mail-item { 
+            background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 12px; 
+            border-left: 5px solid #ffd700; display: flex; justify-content: space-between; align-items: center;
+        }
+        .delete-btn { color: #ff4d4d; font-size: 1.5rem; padding: 0 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="banner">Hasan Gmail</div>
+    
+    <button class="btn-premium" onclick="createAccount()">🚀 GENERATE NEW MAIL</button>
+    
+    <input type="text" id="emailDisplay" readonly placeholder="Click Generate to Start">
+    
+    <div class="btn-group">
+        <button class="btn-small" onclick="checkInbox()">🔄 REFRESH</button>
+        <button class="btn-small" onclick="copyMail()">📋 COPY</button>
+    </div>
+    
+    <div class="inbox-area">
+        <h3 style="color: #ffd700; text-align: left; font-size: 1rem;">📥 Inbox Messages</h3>
+        <div id="messages" style="text-align: left;">
+            <p style="color: #666;">Waiting for new mail...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let token = "", email = "";
+
+    async function createAccount() {
+        let dRes = await fetch('https://api.mail.tm/domains');
+        let dData = await dRes.json();
+        email = "hasan_" + Math.random().toString(36).substring(7) + "@" + dData['hydra:member'][0].domain;
+        
+        await fetch('https://api.mail.tm/accounts', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({address: email, password: 'Password123!'})
+        });
+
+        let tRes = await fetch('https://api.mail.tm/token', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({address: email, password: 'Password123!'})
+        });
+        let tData = await tRes.json();
+        token = tData.token;
+        document.getElementById('emailDisplay').value = email;
+    }
+
+    async function checkInbox() {
+        if (!token) return alert("Please generate an email first!");
+        let res = await fetch('https://api.mail.tm/messages', {
+            headers: {'Authorization': 'Bearer ' + token}
+        });
+        let data = await res.json();
+        let msgs = data['hydra:member'];
+        
+        if (msgs.length > 0) {
+            let html = "";
+            msgs.forEach(m => {
+                html += `<div class="mail-item">
+                            <div><small style="color:#ffd700">${m.from.address}</small><br><b>${m.subject}</b></div>
+                            <span class="delete-btn" onclick="deleteMail('${m.id}')">×</span>
+                         </div>`;
+            });
+            document.getElementById('messages').innerHTML = html;
+        } else {
+            document.getElementById('messages').innerHTML = "<p style='color:#666'>No messages found.</p>";
+        }
+    }
+
+    async function deleteMail(id) {
+        await fetch('https://api.mail.tm/messages/' + id, {
+            method: 'DELETE',
+            headers: {'Authorization': 'Bearer ' + token}
+        });
+        checkInbox();
+    }
+
+    function copyMail() {
+        let copyText = document.getElementById("emailDisplay");
+        if(!copyText.value) return;
+        copyText.select();
+        document.execCommand("copy");
+        alert("Copied to Clipboard!");
+    }
+
+    setInterval(checkInbox, 8000);
+</script>
+
+</body>
+</html>
