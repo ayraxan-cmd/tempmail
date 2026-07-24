@@ -1,826 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover" />
-  <title>  Tempify Pro · Smart Temp Mail</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      background: radial-gradient(circle at 10% 20%, #0a0f1e, #070b17);
-      min-height: 100vh;
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Inter', sans-serif;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 1000px;
-      margin: 0 auto;
-      background: rgba(12, 18, 34, 0.85);
-      backdrop-filter: blur(14px);
-      border-radius: 2rem;
-      border: 1px solid rgba(59, 130, 246, 0.35);
-      box-shadow: 0 30px 50px -20px rgba(0, 0, 0, 0.6);
-      overflow: hidden;
-    }
-
-    .header {
-      padding: 20px 24px 12px 24px;
-      border-bottom: 1px solid rgba(71, 85, 105, 0.5);
-      background: rgba(2, 6, 23, 0.4);
-    }
-
-    h1 {
-      font-size: 1.8rem;
-      font-weight: 800;
-      background: linear-gradient(125deg, #E0F2FE, #7AA9FF, #A5F3FC);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .sub {
-      color: #90a3bf;
-      font-size: 0.75rem;
-      margin-top: 8px;
-    }
-
-    .email-card {
-      margin: 20px 20px 16px 20px;
-      background: rgba(15, 23, 42, 0.8);
-      border-radius: 1.5rem;
-      border: 1px solid #2d3a5e;
-    }
-
-    .email-label {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 18px 0 18px;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-weight: 600;
-      color: #7aa2f7;
-    }
-
-    .email-input-area {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 8px 18px 18px 18px;
-      flex-wrap: wrap;
-    }
-
-    #email {
-      flex: 1;
-      background: #020617;
-      border: 1px solid #334155;
-      border-radius: 1.2rem;
-      padding: 14px 18px;
-      color: #f1f5f9;
-      font-size: 0.9rem;
-      font-weight: 500;
-      outline: none;
-      width: 100%;
-      min-width: 0;
-    }
-
-    .copy-btn-icon {
-      background: #1e2a47;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 1.2rem;
-      color: #cbd5ff;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: 0.2s;
-    }
-
-    .action-group {
-      display: flex;
-      gap: 12px;
-      margin: 0px 20px 22px 20px;
-      flex-wrap: wrap;
-    }
-
-    .btn-modern {
-      background: rgba(37, 99, 235, 0.2);
-      border: 1px solid rgba(59, 130, 246, 0.6);
-      padding: 11px 18px;
-      border-radius: 2.5rem;
-      font-weight: 600;
-      font-size: 0.85rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      backdrop-filter: blur(4px);
-      transition: all 0.2s ease;
-      color: #eef2ff;
-      flex: 1 0 auto;
-      justify-content: center;
-    }
-
-    .btn-primary {
-      background: #2563eb;
-      border-color: #60a5fa;
-      color: white;
-      box-shadow: 0 6px 12px -6px #1e3a8a;
-    }
-
-    .domain-selector {
-      margin: 0 20px 15px 20px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-      background: rgba(0,0,0,0.3);
-      padding: 8px 12px;
-      border-radius: 2rem;
-    }
-
-    .domain-badge {
-      font-size: 0.7rem;
-      color: #90cdf4;
-    }
-
-    .refresh-domain {
-      background: none;
-      border: 1px solid #3b82f6;
-      border-radius: 30px;
-      padding: 4px 12px;
-      color: white;
-      cursor: pointer;
-      font-size: 0.7rem;
-    }
-
-    .inbox-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 20px 0px 20px;
-    }
-
-    .inbox-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #cbd5ff;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .badge-count {
-      background: #1e293b;
-      padding: 2px 10px;
-      border-radius: 40px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: #90cdf4;
-    }
-
-    .messages-area {
-      padding: 12px 16px 28px 16px;
-      max-height: 520px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .messages-area::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    .messages-area::-webkit-scrollbar-track {
-      background: #0f172a;
-      border-radius: 8px;
-    }
-
-    .messages-area::-webkit-scrollbar-thumb {
-      background: #3b82f6;
-      border-radius: 8px;
-    }
-
-    .mail-card {
-      background: rgba(30, 41, 59, 0.75);
-      backdrop-filter: blur(4px);
-      border-radius: 1.25rem;
-      padding: 1rem 1.2rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border: 1px solid rgba(71, 85, 105, 0.6);
-    }
-
-    .mail-card:active {
-      transform: scale(0.99);
-      background: #2563eb20;
-    }
-
-    .mail-subject {
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: #f0f9ff;
-      margin-bottom: 10px;
-      word-break: break-word;
-    }
-
-    .mail-from {
-      font-size: 0.75rem;
-      color: #9bb5e6;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      word-break: break-all;
-    }
-
-    .mail-date {
-      font-size: 0.65rem;
-      color: #7f8ea3;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 10px;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 42px 20px;
-      background: rgba(15, 23, 42, 0.5);
-      border-radius: 1.8rem;
-      border: 1px dashed #334155;
-      color: #94a3b8;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .detail-view {
-      background: #0f172af0;
-      border-radius: 1.5rem;
-      padding: 1.2rem;
-      border: 1px solid #2d3e66;
-      animation: fadeSlide 0.2s ease;
-    }
-
-    .detail-subject {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #eef2ff;
-      margin-bottom: 16px;
-      word-break: break-word;
-    }
-
-    .detail-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      background: #02061770;
-      padding: 12px 14px;
-      border-radius: 1rem;
-      margin: 14px 0;
-      font-size: 0.75rem;
-    }
-
-    .message-body-content {
-      background: #020617a0;
-      padding: 18px;
-      border-radius: 1.2rem;
-      margin: 18px 0;
-      overflow-x: auto;
-      font-size: 0.85rem;
-      line-height: 1.5;
-      color: #e2e8f0;
-    }
-
-    .back-btn {
-      background: #1e293b;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 2rem;
-      font-weight: 500;
-      color: #b9d0ff;
-      cursor: pointer;
-      width: 100%;
-      justify-content: center;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    @keyframes fadeSlide {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    footer {
-      font-size: 0.65rem;
-      text-align: center;
-      padding: 16px 20px 20px;
-      color: #5b6e8c;
-      border-top: 1px solid rgba(71, 85, 105, 0.3);
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1e3a8a;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 40px;
-      font-size: 0.8rem;
-      z-index: 9999;
-      backdrop-filter: blur(12px);
-      font-weight: 500;
-    }
-
-    @media (max-width: 580px) {
-      body {
-        padding: 12px;
-      }
-
-      h1 {
-        font-size: 1.45rem;
-      }
-
-      .email-input-area {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .copy-btn-icon {
-        justify-content: center;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hasan Gmail Pro</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+        
+        body { 
+            background: #050505; color: #fff; font-family: 'Poppins', sans-serif; 
+            display: flex; justify-content: center; align-items: flex-start; 
+            min-height: 100vh; margin: 0; padding-top: 20px;
+        }
+        .container { 
+            width: 95%; max-width: 420px; background: #111; padding: 25px 20px; 
+            border-radius: 20px; border: 1px solid #333; text-align: center;
+        }
+        .banner { 
+            font-size: 2rem; font-weight: 800; margin-bottom: 5px;
+            background: linear-gradient(to right, #bf953f, #ffd700);
+            -webkit-background-clip: text; color: transparent; text-transform: uppercase;
+        }
+        .subtitle { color: #888; font-size: 0.85rem; margin-bottom: 25px; }
+        
+        input { 
+            width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #444;
+            background: #000; color: #ffd700; text-align: center; font-size: 1rem; 
+            box-sizing: border-box; margin-bottom: 15px; font-weight: 600;
+        }
+        
+        .btn-premium { 
+            background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000; font-weight: 800;
+            padding: 15px; border: none; border-radius: 10px; cursor: pointer; width: 100%;
+            margin-bottom: 15px; font-size: 1rem; text-transform: uppercase;
+        }
+        
+        .btn-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn-small { 
+            flex: 1; background: #222; color: #fff; padding: 12px; border: none; 
+            border-radius: 8px; font-weight: 600; cursor: pointer; border: 1px solid #444;
+        }
+        
+        .inbox-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
+        .inbox-title { color: #ffd700; font-size: 1.1rem; font-weight: 600; margin: 0; }
+        
+        #messages { text-align: left; max-height: 400px; overflow-y: auto; }
+        
+        .mail-item { 
+            background: #1a1a1a; padding: 15px; border-radius: 10px; margin-bottom: 15px; 
+            border-left: 4px solid #ffd700; word-wrap: break-word;
+        }
+        .mail-sender { color: #ffd700; font-size: 0.85rem; margin-bottom: 5px; font-weight: 600; }
+        .mail-subject { font-weight: 800; margin-bottom: 10px; font-size: 1rem; }
+        .mail-body { background: #000; padding: 10px; border-radius: 5px; font-size: 0.9rem; color: #ccc; white-space: pre-wrap; font-family: monospace;}
+        
+        .status-text { color: #666; text-align: center; font-size: 0.9rem; margin-top: 20px;}
+        .loading { display: none; color: #ffd700; font-size: 0.9rem; margin-top: 10px; }
+    </style>
 </head>
-
 <body>
 
 <div class="container">
-
-  <div class="header">
-    <h1><i class="fas fa-shield-alt"></i>  TEMPMAIL Pro</h1>
-    <div class="sub"><i class="fas fa-globe"></i> Smart temp mail · Bypass blocks with fresh domains</div>
-  </div>
-
-  <div class="email-card">
-    <div class="email-label">
-      <i class="fas fa-at"></i>
-      <span>disposable address</span>
+    <div class="banner">Hasan Gmail</div>
+    <div class="subtitle">Bypass FB Verification Easily</div>
+    
+    <button class="btn-premium" id="genBtn" onclick="createAccount()">🚀 GENERATE NEW MAIL</button>
+    <div id="loadingText" class="loading">Creating account... Please wait...</div>
+    
+    <input type="text" id="emailDisplay" readonly placeholder="Your Email Will Appear Here">
+    
+    <div class="btn-group">
+        <button class="btn-small" onclick="checkInboxManually()">🔄 REFRESH INBOX</button>
+        <button class="btn-small" onclick="copyMail()">📋 COPY MAIL</button>
     </div>
-
-    <div class="email-input-area">
-      <input type="text" id="email" readonly placeholder="Generate new email">
-      <button class="copy-btn-icon" id="copyBtn">
-        <i class="fas fa-copy"></i> Copy
-      </button>
+    
+    <div class="inbox-header">
+        <h3 class="inbox-title">📥 Live Inbox</h3>
     </div>
-  </div>
-
-  <div class="domain-selector">
-    <span class="domain-badge">
-      <i class="fas fa-server"></i>
-      Active provider:
-      <span id="activeProviderLabel">Guerrilla</span>
-    </span>
-
-    <button id="switchProviderBtn" class="refresh-domain">
-      <i class="fas fa-exchange-alt"></i>
-      Switch Provider
-    </button>
-  </div>
-
-  <div class="action-group">
-    <button class="btn-modern btn-primary" id="generateBtn">
-      <i class="fas fa-magic"></i>
-      Generate Mail
-    </button>
-
-    <button class="btn-modern" id="refreshBtn">
-      <i class="fas fa-rotate-right"></i>
-      Refresh
-    </button>
-  </div>
-
-  <div class="inbox-header">
-    <div class="inbox-title">
-      <i class="fas fa-inbox"></i>
-      Inbox
-      <span id="countBadge" class="badge-count">0</span>
+    
+    <div id="messages">
+        <div class="status-text" id="statusMsg">Waiting for you to generate an email...</div>
     </div>
-  </div>
-
-  <div id="inbox" class="messages-area">
-    <div class="empty-state">
-      <i class="far fa-envelope"></i>
-      <span>Tap Generate Mail to start</span>
-    </div>
-  </div>
-
-  <footer>
-    <i class="fas fa-sync-alt"></i>
-    Auto-refresh 6s · If a site blocks, click Switch Provider
-  </footer>
-
 </div>
 
 <script>
-let currentProvider = "guerrilla";
-let currentSid = null;
-let currentEmail = null;
-let mailtmToken = null;
+    let token = "";
+    let email = "";
+    let lastMessageId = ""; // যেন একই মেসেজ বারবার লোড না হয়
 
-function showMessage(msg, isErr = false) {
-  let toast = document.querySelector('.toast');
+    // ১. অ্যাকাউন্ট এবং টোকেন তৈরি করা
+    async function createAccount() {
+        const btn = document.getElementById('genBtn');
+        const loading = document.getElementById('loadingText');
+        
+        btn.disabled = true;
+        loading.style.display = 'block';
+        document.getElementById('statusMsg').innerText = "Connecting to server...";
 
-  if (toast) toast.remove();
+        try {
+            // ডোমেইন নেওয়া
+            const dRes = await fetch('https://api.mail.tm/domains');
+            const dData = await dRes.json();
+            const domain = dData['hydra:member'][0].domain;
+            
+            email = "fb_" + Math.random().toString(36).substring(2, 10) + "@" + domain;
+            const password = "HasanSecretPass123!";
+            
+            // অ্যাকাউন্ট তৈরি
+            await fetch('https://api.mail.tm/accounts', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({address: email, password: password})
+            });
 
-  toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.style.background = isErr ? '#b91c1c' : '#1e3a8a';
-  toast.innerText = msg;
-
-  document.body.appendChild(toast);
-
-  setTimeout(() => toast.remove(), 2500);
-}
-
-async function generateWithGuerrilla() {
-  const resp = await fetch('https://api.guerrillamail.com/ajax.php?f=get_email_address&ip=127.0.0.1&agent=TempifyPro');
-  const data = await resp.json();
-
-  if (data && data.email_addr) {
-    currentEmail = data.email_addr;
-    currentSid = data.sid;
-    return true;
-  }
-
-  return false;
-}
-
-async function generateWithMailTm() {
-  const domainRes = await fetch('https://api.mail.tm/domains');
-  const domainData = await domainRes.json();
-
-  const domain = domainData['hydra:member'][0].domain;
-
-  const randomName = 'usr_' + Math.random().toString(36).substring(2, 12) + Date.now();
-
-  const email = `${randomName}@${domain}`;
-
-  const pwd = 'TempSecure2025!';
-
-  await fetch('https://api.mail.tm/accounts', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      address: email,
-      password: pwd
-    })
-  }).catch(() => null);
-
-  const tokenRes = await fetch('https://api.mail.tm/token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      address: email,
-      password: pwd
-    })
-  });
-
-  const tokenData = await tokenRes.json();
-
-  mailtmToken = tokenData.token;
-  currentEmail = email;
-  currentSid = mailtmToken;
-
-  return true;
-}
-
-async function generateMail() {
-  const btn = document.getElementById('generateBtn');
-
-  const original = btn.innerHTML;
-
-  btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Creating...';
-
-  btn.disabled = true;
-
-  try {
-    if (currentProvider === 'guerrilla') {
-      await generateWithGuerrilla();
-      document.getElementById('activeProviderLabel').innerText = 'Guerrilla Mail';
-    } else {
-      await generateWithMailTm();
-      document.getElementById('activeProviderLabel').innerText = 'Mail.tm';
-    }
-
-    document.getElementById('email').value = currentEmail;
-
-    showMessage('New email generated');
-
-    await loadInbox();
-
-  } catch (e) {
-    console.error(e);
-    showMessage('Generation failed', true);
-  }
-
-  btn.innerHTML = original;
-  btn.disabled = false;
-}
-
-async function loadInbox() {
-  if (!currentSid) return;
-
-  try {
-    if (currentProvider === 'guerrilla') {
-      const resp = await fetch(`https://api.guerrillamail.com/ajax.php?f=fetch_email_list&sid=${currentSid}&seq=0`);
-
-      const data = await resp.json();
-
-      const emails = data.list || [];
-
-      renderInbox(emails.map(m => ({
-        id: m.mail_id,
-        subject: m.mail_subject || '(No Subject)',
-        from: m.mail_from || 'Unknown',
-        timestamp: m.timestamp * 1000
-      })));
-
-    } else {
-      const resp = await fetch('https://api.mail.tm/messages', {
-        headers: {
-          Authorization: `Bearer ${currentSid}`
+            // টোকেন নেওয়া
+            const tRes = await fetch('https://api.mail.tm/token', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({address: email, password: password})
+            });
+            
+            const tData = await tRes.json();
+            token = tData.token;
+            
+            document.getElementById('emailDisplay').value = email;
+            document.getElementById('statusMsg').innerText = "Inbox active. Waiting for OTP...";
+            document.getElementById('messages').innerHTML = ''; // ইনবক্স ক্লিয়ার
+            lastMessageId = "";
+            
+        } catch (error) {
+            alert("Error creating email. Please try again.");
+        } finally {
+            btn.disabled = false;
+            loading.style.display = 'none';
         }
-      });
-
-      const data = await resp.json();
-
-      const mails = data['hydra:member'] || [];
-
-      renderInbox(mails.map(m => ({
-        id: m.id,
-        subject: m.subject || '(No Subject)',
-        from: m.from?.address || 'Unknown',
-        timestamp: new Date(m.createdAt).getTime()
-      })));
     }
 
-  } catch (e) {
-    console.error(e);
-  }
-}
+    // ২. মেসেজ লিস্ট চেক করা এবং নতুন মেসেজ বডি রিড করা
+    async function checkInbox() {
+        if (!token) return;
 
-function renderInbox(mails) {
-  const container = document.getElementById('inbox');
-
-  if (!mails.length) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <i class="far fa-inbox"></i>
-        <span>No messages yet</span>
-      </div>
-    `;
-
-    updateBadge(0);
-    return;
-  }
-
-  updateBadge(mails.length);
-
-  container.innerHTML = '';
-
-  mails.sort((a, b) => b.timestamp - a.timestamp);
-
-  mails.forEach(mail => {
-    const card = document.createElement('div');
-
-    card.className = 'mail-card';
-
-    card.innerHTML = `
-      <div class="mail-subject">
-        <i class="fas fa-envelope"></i>
-        ${escapeHtml(mail.subject)}
-      </div>
-
-      <div class="mail-from">
-        <i class="fas fa-user-circle"></i>
-        ${escapeHtml(mail.from)}
-      </div>
-
-      <div class="mail-date">
-        <i class="far fa-clock"></i>
-        ${new Date(mail.timestamp).toLocaleString()}
-      </div>
-    `;
-
-    card.addEventListener('click', () => openMail(mail.id));
-
-    container.appendChild(card);
-  });
-}
-
-async function openMail(id) {
-  if (!currentSid) return;
-
-  try {
-    let detail;
-
-    if (currentProvider === 'guerrilla') {
-      const resp = await fetch(`https://api.guerrillamail.com/ajax.php?f=fetch_email&sid=${currentSid}&email_id=${id}`);
-
-      detail = await resp.json();
-
-    } else {
-      const resp = await fetch(`https://api.mail.tm/messages/${id}`, {
-        headers: {
-          Authorization: `Bearer ${currentSid}`
+        try {
+            // মেসেজ লিস্ট কল করা
+            const res = await fetch('https://api.mail.tm/messages', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            
+            // যদি ইনবক্সে মেসেজ থাকে
+            if (data['hydra:totalItems'] > 0) {
+                const latestMsg = data['hydra:member'][0];
+                
+                // নতুন মেসেজ হলেই কেবল বডি রিড করবে (এতে স্পিড বাড়বে)
+                if (latestMsg.id !== lastMessageId) {
+                    lastMessageId = latestMsg.id;
+                    
+                    // মেসেজের ফুল বডি (টেক্সট/কোড) পড়ার জন্য কল
+                    const msgDetailRes = await fetch(`https://api.mail.tm/messages/${latestMsg.id}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const msgDetail = await msgDetailRes.json();
+                    
+                    // স্ক্রিনে দেখানো
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = 'mail-item';
+                    
+                    // text না থাকলে html দেখাবে
+                    const bodyContent = msgDetail.text || "No text body found. Check html.";
+                    
+                    msgDiv.innerHTML = `
+                        <div class="mail-sender">From: ${latestMsg.from.address}</div>
+                        <div class="mail-subject">Subject: ${latestMsg.subject}</div>
+                        <div class="mail-body">${bodyContent}</div>
+                    `;
+                    
+                    const messagesContainer = document.getElementById('messages');
+                    // প্রথম মেসেজ হলে statusMsg সরিয়ে ফেলা
+                    if(document.getElementById('statusMsg')) {
+                        messagesContainer.innerHTML = '';
+                    }
+                    // নতুন মেসেজ সবার উপরে যোগ করা
+                    messagesContainer.prepend(msgDiv);
+                }
+            }
+        } catch (error) {
+            console.error("Error checking inbox:", error);
         }
-      });
-
-      detail = await resp.json();
     }
 
-    const subject = detail.mail_subject || detail.subject || '(No Subject)';
-
-    const from = detail.mail_from || detail.from?.address || 'Unknown';
-
-    let textBody = detail.mail_text || detail.text || '';
-
-    let htmlBody = detail.mail_body || detail.html || '';
-
-    if (Array.isArray(htmlBody)) {
-      htmlBody = htmlBody.join('');
+    function checkInboxManually() {
+        if (!token) {
+            alert("Please generate an email first!");
+            return;
+        }
+        checkInbox();
     }
 
-    const container = document.getElementById('inbox');
-
-    let bodyContent = '';
-
-    if (htmlBody && htmlBody.trim() !== '') {
-
-      bodyContent = `
-        <iframe
-          style="width:100%; min-height:500px; border:none; border-radius:14px; background:white;"
-          sandbox="allow-same-origin"
-          srcdoc="${htmlBody
-            .replace(/&/g, '&amp;')
-            .replace(/"/g, '&quot;')}"
-        ></iframe>
-      `;
-
-    } else {
-
-      bodyContent = `
-        <pre style="white-space:pre-wrap; font-family:inherit; margin:0;">${escapeHtml(textBody)}</pre>
-      `;
+    function copyMail() {
+        const emailField = document.getElementById("emailDisplay");
+        if (!emailField.value) {
+            alert("Nothing to copy!");
+            return;
+        }
+        emailField.select();
+        document.execCommand("copy");
+        alert("Email copied!");
     }
 
-    container.innerHTML = `
-      <div class="detail-view">
-
-        <div class="detail-subject">
-          <i class="far fa-envelope-open"></i>
-          ${escapeHtml(subject)}
-        </div>
-
-        <div class="detail-meta">
-          <span>
-            <i class="fas fa-paper-plane"></i>
-            <strong>From:</strong>
-            ${escapeHtml(from)}
-          </span>
-
-          <span>
-            <i class="fas fa-envelope"></i>
-            <strong>To:</strong>
-            ${escapeHtml(currentEmail)}
-          </span>
-        </div>
-
-        <div class="message-body-content">
-          ${bodyContent}
-        </div>
-
-        <button class="back-btn" id="detailBackBtn">
-          <i class="fas fa-arrow-left"></i>
-          Back to Inbox
-        </button>
-
-      </div>
-    `;
-
-    document.getElementById('detailBackBtn')
-      .addEventListener('click', () => loadInbox());
-
-  } catch (e) {
-    console.error(e);
-    showMessage('Cannot open email', true);
-  }
-}
-
-function updateBadge(count) {
-  document.getElementById('countBadge').innerText = count;
-}
-
-function escapeHtml(str) {
-  if (!str) return '';
-
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
-
-function copyMail() {
-  if (!currentEmail) return;
-
-  navigator.clipboard.writeText(currentEmail);
-
-  showMessage('Copied');
-}
-
-function switchProvider() {
-  currentProvider = currentProvider === 'guerrilla'
-    ? 'mailtm'
-    : 'guerrilla';
-
-  currentSid = null;
-  currentEmail = null;
-
-  document.getElementById('email').value = '';
-
-  document.getElementById('inbox').innerHTML = `
-    <div class="empty-state">
-      <i class="fas fa-exchange-alt"></i>
-      <span>Provider switched · Generate new email</span>
-    </div>
-  `;
-
-  updateBadge(0);
-}
-
-setInterval(() => {
-  if (currentSid && !document.querySelector('.detail-view')) {
-    loadInbox();
-  }
-}, 6000);
-
-
-document.getElementById('generateBtn')
-  .addEventListener('click', generateMail);
-
-
-document.getElementById('refreshBtn')
-  .addEventListener('click', loadInbox);
-
-
-document.getElementById('copyBtn')
-  .addEventListener('click', copyMail);
-
-
-document.getElementById('switchProviderBtn')
-  .addEventListener('click', switchProvider);
+    // প্রতি ৪ সেকেন্ডে অটো রিফ্রেশ
+    setInterval(checkInbox, 4000);
 </script>
 
 </body>
 </html>
-
-
-
-
-এই কোড এর মধ্যে নাম ও প্রিমিয়াম লুক টা বসিয়ে ফুল কোড দাও বাকি ডিজাইন যেন সেম থাকে
