@@ -1,214 +1,259 @@
+<?php
+// Luhn Algorithm দিয়ে সঠিক চেক ডিজিট ক্যালকুলেট করার ফাংশন
+function generateLuhnChecksum($partial_number) {
+    $sum = 0;
+    $length = strlen($partial_number);
+    $parity = $length % 2;
+
+    for ($i = 0; $i < $length; $i++) {
+        $digit = (int)$partial_number[$i];
+        if ($i % 2 == $parity) {
+            $digit *= 2;
+            if ($digit > 9) {
+                $digit -= 9;
+            }
+        }
+        $sum += $digit;
+    }
+
+    $mod = $sum % 10;
+    return ($mod == 0) ? 0 : (10 - $mod);
+}
+
+// কার্ড জেনারেটর লজিক
+$generated_cards = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['bin'])) {
+    $bin = preg_replace('/\D/', '', $_POST['bin']); 
+    $count = 10; // ফিক্সড ১০টি কার্ড
+
+    for ($i = 0; $i < $count; $i++) {
+        $remaining_length = 15 - strlen($bin); 
+        $temp_card = $bin;
+        
+        for ($j = 0; $j < $remaining_length; $j++) {
+            $temp_card .= mt_rand(0, 9);
+        }
+
+        $check_digit = generateLuhnChecksum($temp_card);
+        $card_number = $temp_card . $check_digit;
+        $formatted_card = trim(chunk_split($card_number, 4, ' '));
+
+        $month = str_pad(mt_rand(1, 12), 2, '0', STR_PAD_LEFT);
+        $year = date('y') + mt_rand(1, 4);
+        $cvv = str_pad(mt_rand(1, 999), 3, '0', STR_PAD_LEFT);
+
+        // ফুল কম্বো স্ট্রিং (যেমনটি সাধারণত কার্ড জেনারেটরে লাগে: Card|MM|YY|CVV)
+        $full_combo = $formatted_card . '|' . $month . '/' . $year . '|' . $cvv;
+
+        $generated_cards[] = [
+            'card' => $formatted_card,
+            'exp' => $month . '/' . $year,
+            'cvv' => $cvv,
+            'combo' => $full_combo
+        ];
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hasan Temp Mail Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hasan card maker - Virtual Master Card Generator</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
-        
-        body { 
-            background: #050505; color: #fff; font-family: 'Poppins', sans-serif; 
-            display: flex; justify-content: center; align-items: flex-start; 
-            min-height: 100vh; margin: 0; padding-top: 20px;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
         }
-        .container { 
-            width: 95%; max-width: 420px; background: #111; padding: 25px 20px; 
-            border-radius: 20px; border: 1px solid #333; text-align: center;
+        .container {
+            max-width: 750px;
+            margin: 30px auto;
+            background: #141414;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.15);
+            border: 1px solid #d4af37;
         }
-        .banner { 
-            font-size: 2rem; font-weight: 800; margin-bottom: 5px;
-            background: linear-gradient(to right, #bf953f, #ffd700);
-            -webkit-background-clip: text; color: transparent; text-transform: uppercase;
+        h2 {
+            text-align: center;
+            color: #d4af37;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
         }
-        .subtitle { color: #888; font-size: 0.85rem; margin-bottom: 25px; }
-        
-        input { 
-            width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #444;
-            background: #000; color: #ffd700; text-align: center; font-size: 1rem; 
-            box-sizing: border-box; margin-bottom: 15px; font-weight: 600;
+        .form-group {
+            margin-bottom: 20px;
         }
-        
-        .btn-premium { 
-            background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000; font-weight: 800;
-            padding: 15px; border: none; border-radius: 10px; cursor: pointer; width: 100%;
-            margin-bottom: 15px; font-size: 1rem; text-transform: uppercase;
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #d4af37;
+            font-weight: 600;
         }
-        
-        .btn-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        .btn-small { 
-            flex: 1; background: #222; color: #fff; padding: 12px; border: none; 
-            border-radius: 8px; font-weight: 600; cursor: pointer; border: 1px solid #444;
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px solid #d4af37;
+            color: #fff;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s;
         }
-        
-        .inbox-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
-        .inbox-title { color: #ffd700; font-size: 1.1rem; font-weight: 600; margin: 0; }
-        
-        #messages { text-align: left; max-height: 400px; overflow-y: auto; }
-        
-        .mail-item { 
-            background: #1a1a1a; padding: 15px; border-radius: 10px; margin-bottom: 15px; 
-            border-left: 4px solid #ffd700; word-wrap: break-word;
+        input[type="text"]:focus {
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
         }
-        .mail-sender { color: #ffd700; font-size: 0.85rem; margin-bottom: 5px; font-weight: 600; }
-        .mail-subject { font-weight: 800; margin-bottom: 10px; font-size: 1rem; }
-        .mail-body { background: #000; padding: 10px; border-radius: 5px; font-size: 0.9rem; color: #ccc; white-space: pre-wrap; font-family: monospace;}
-        
-        .status-text { color: #666; text-align: center; font-size: 0.9rem; margin-top: 20px;}
-        .loading { display: none; color: #ffd700; font-size: 0.9rem; margin-top: 10px; }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #d4af37 0%, #aa8c2c 100%);
+            border: none;
+            color: #0d0d0d;
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: linear-gradient(135deg, #e6be40, #c5a034);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+        table {
+            width: 100%;
+            margin-top: 25px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #332d16;
+            text-align: center;
+            font-size: 14px;
+        }
+        th {
+            background: #1f1b0d;
+            color: #d4af37;
+            text-transform: uppercase;
+        }
+        tr:nth-child(even) {
+            background: #19160f;
+        }
+        tr:hover {
+            background: #241f12;
+        }
+        .copy-btn {
+            background: #d4af37;
+            color: #0d0d0d;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+        .copy-btn:hover {
+            background: #fff;
+        }
+        /* টোস্ট নোটিফিকেশন */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #d4af37;
+            color: #0d0d0d;
+            text-align: center;
+            border-radius: 4px;
+            padding: 12px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        #toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+        @keyframes fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+        }
+        @keyframes fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="banner">Hasan Temp Mail</div>
-    <div class="subtitle">Bypass FB Verification Easily</div>
-    
-    <button class="btn-premium" id="genBtn" onclick="createAccount()">🚀 GENERATE NEW MAIL</button>
-    <div id="loadingText" class="loading">Creating account... Please wait...</div>
-    
-    <input type="text" id="emailDisplay" readonly placeholder="Your Email Will Appear Here">
-    
-    <div class="btn-group">
-        <button class="btn-small" onclick="checkInboxManually()">🔄 REFRESH INBOX</button>
-        <button class="btn-small" onclick="copyMail()">📋 COPY MAIL</button>
-    </div>
-    
-    <div class="inbox-header">
-        <h3 class="inbox-title">📥 Live Inbox</h3>
-    </div>
-    
-    <div id="messages">
-        <div class="status-text" id="statusMsg">Waiting for you to generate an email...</div>
-    </div>
+    <h2>👑 hasan card maker 👑</h2>
+    <form method="POST" action="">
+        <div class="form-group">
+            <label for="bin">Enter BIN (Generates 10 Cards):</label>
+            <input type="text" id="bin" name="bin" placeholder="e.g., 541333" required value="<?php echo isset($_POST['bin']) ? htmlspecialchars($_POST['bin']) : ''; ?>">
+        </div>
+        <button type="submit">Generate 10 Cards</button>
+    </main>
+
+    <?php if (!empty($generated_cards)): ?>
+        <table>
+            <thead>
+                <tr>
+                    <th>SL</th>
+                    <th>Card Number | Exp | CVV</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($generated_cards as $index => $c): ?>
+                    <tr>
+                        <td><?php echo $index + 1; ?></td>
+                        <td id="card-<?php echo $index; ?>" style="font-family: monospace; letter-spacing: 1px; color: #f3e5ab;">
+                            <?php echo $c['combo']; ?>
+                        </td>
+                        <td>
+                            <button class="copy-btn" onclick="copyToClipboard('card-<?php echo $index; ?>')">Copy</button>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php endif; ?>
 </div>
 
+<div id="toast">Copied to Clipboard!</div>
+
 <script>
-    let token = "";
-    let email = "";
-    let lastMessageId = ""; // যেন একই মেসেজ বারবার লোড না হয়
+function copyToClipboard(containerId) {
+    var textElement = document.getElementById(containerId).innerText;
+    
+    // క్లిప్‌বোর্ডে কপি করার মডার্ন API
+    navigator.clipboard.writeText(textElement).then(function() {
+        showToast();
+    }, function(err) {
+        alert('Failed to copy: ', err);
+    });
+}
 
-    // ১. অ্যাকাউন্ট এবং টোকেন তৈরি করা
-    async function createAccount() {
-        const btn = document.getElementById('genBtn');
-        const loading = document.getElementById('loadingText');
-        
-        btn.disabled = true;
-        loading.style.display = 'block';
-        document.getElementById('statusMsg').innerText = "Connecting to server...";
-
-        try {
-            // ডোমেইন নেওয়া
-            const dRes = await fetch('https://api.mail.tm/domains');
-            const dData = await dRes.json();
-            const domain = dData['hydra:member'][0].domain;
-            
-            email = "fb_" + Math.random().toString(36).substring(2, 10) + "@" + domain;
-            const password = "HasanSecretPass123!";
-            
-            // অ্যাকাউন্ট তৈরি
-            await fetch('https://api.mail.tm/accounts', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({address: email, password: password})
-            });
-
-            // টোকেন নেওয়া
-            const tRes = await fetch('https://api.mail.tm/token', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({address: email, password: password})
-            });
-            
-            const tData = await tRes.json();
-            token = tData.token;
-            
-            document.getElementById('emailDisplay').value = email;
-            document.getElementById('statusMsg').innerText = "Inbox active. Waiting for OTP...";
-            document.getElementById('messages').innerHTML = ''; // ইনবক্স ক্লিয়ার
-            lastMessageId = "";
-            
-        } catch (error) {
-            alert("Error creating email. Please try again.");
-        } finally {
-            btn.disabled = false;
-            loading.style.display = 'none';
-        }
-    }
-
-    // ২. মেসেজ লিস্ট চেক করা এবং নতুন মেসেজ বডি রিড করা
-    async function checkInbox() {
-        if (!token) return;
-
-        try {
-            // মেসেজ লিস্ট কল করা
-            const res = await fetch('https://api.mail.tm/messages', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await res.json();
-            
-            // যদি ইনবক্সে মেসেজ থাকে
-            if (data['hydra:totalItems'] > 0) {
-                const latestMsg = data['hydra:member'][0];
-                
-                // নতুন মেসেজ হলেই কেবল বডি রিড করবে (এতে স্পিড বাড়বে)
-                if (latestMsg.id !== lastMessageId) {
-                    lastMessageId = latestMsg.id;
-                    
-                    // মেসেজের ফুল বডি (টেক্সট/কোড) পড়ার জন্য কল
-                    const msgDetailRes = await fetch(`https://api.mail.tm/messages/${latestMsg.id}`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    const msgDetail = await msgDetailRes.json();
-                    
-                    // স্ক্রিনে দেখানো
-                    const msgDiv = document.createElement('div');
-                    msgDiv.className = 'mail-item';
-                    
-                    // text না থাকলে html দেখাবে
-                    const bodyContent = msgDetail.text || "No text body found. Check html.";
-                    
-                    msgDiv.innerHTML = `
-                        <div class="mail-sender">From: ${latestMsg.from.address}</div>
-                        <div class="mail-subject">Subject: ${latestMsg.subject}</div>
-                        <div class="mail-body">${bodyContent}</div>
-                    `;
-                    
-                    const messagesContainer = document.getElementById('messages');
-                    // প্রথম মেসেজ হলে statusMsg সরিয়ে ফেলা
-                    if(document.getElementById('statusMsg')) {
-                        messagesContainer.innerHTML = '';
-                    }
-                    // নতুন মেসেজ সবার উপরে যোগ করা
-                    messagesContainer.prepend(msgDiv);
-                }
-            }
-        } catch (error) {
-            console.error("Error checking inbox:", error);
-        }
-    }
-
-    function checkInboxManually() {
-        if (!token) {
-            alert("Please generate an email first!");
-            return;
-        }
-        checkInbox();
-    }
-
-    function copyMail() {
-        const emailField = document.getElementById("emailDisplay");
-        if (!emailField.value) {
-            alert("Nothing to copy!");
-            return;
-        }
-        emailField.select();
-        document.execCommand("copy");
-        alert("Email copied!");
-    }
-
-    // প্রতি ৪ সেকেন্ডে অটো রিফ্রেশ
-    setInterval(checkInbox, 4000);
+function showToast() {
+    var toast = document.getElementById("toast");
+    toast.className = "show";
+    setTimeout(function(){ 
+        toast.className = toast.className.replace("show", ""); 
+    }, 3000);
+}
 </script>
 
 </body>
