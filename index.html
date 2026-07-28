@@ -1,60 +1,3 @@
-<?php
-// Luhn Algorithm দিয়ে সঠিক চেক ডিজিট ক্যালকুলেট করার ফাংশন
-function generateLuhnChecksum($partial_number) {
-    $sum = 0;
-    $length = strlen($partial_number);
-    $parity = $length % 2;
-
-    for ($i = 0; $i < $length; $i++) {
-        $digit = (int)$partial_number[$i];
-        if ($i % 2 == $parity) {
-            $digit *= 2;
-            if ($digit > 9) {
-                $digit -= 9;
-            }
-        }
-        $sum += $digit;
-    }
-
-    $mod = $sum % 10;
-    return ($mod == 0) ? 0 : (10 - $mod);
-}
-
-// কার্ড জেনারেটর লজিক
-$generated_cards = [];
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['bin'])) {
-    $bin = preg_replace('/\D/', '', $_POST['bin']); 
-    $count = 10; // ফিক্সড ১০টি কার্ড
-
-    for ($i = 0; $i < $count; $i++) {
-        $remaining_length = 15 - strlen($bin); 
-        $temp_card = $bin;
-        
-        for ($j = 0; $j < $remaining_length; $j++) {
-            $temp_card .= mt_rand(0, 9);
-        }
-
-        $check_digit = generateLuhnChecksum($temp_card);
-        $card_number = $temp_card . $check_digit;
-        
-        // স্পেস ছাড়া কার্ড নম্বর (যেমন: 541333xxxxxxxxxx)
-        $formatted_card = trim(chunk_split($card_number, 4, ' '));
-        $clean_card = str_replace(' ', '', $formatted_card);
-
-        $month = str_pad(mt_rand(1, 12), 2, '0', STR_PAD_LEFT);
-        $year = date('y') + mt_rand(1, 4);
-        $cvv = str_pad(mt_rand(1, 999), 3, '0', STR_PAD_LEFT);
-
-        // ফুল কম্বো স্ট্রিং (Card|MM|YY|CVV)
-        $full_combo = $clean_card . '|' . $month . '|' . $year . '|' . $cvv;
-
-        $generated_cards[] = [
-            'combo' => $full_combo
-        ];
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -132,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['bin'])) {
             width: 100%;
             margin-top: 25px;
             border-collapse: collapse;
+            display: none;
         }
         th, td {
             padding: 12px;
@@ -198,55 +142,105 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['bin'])) {
 
 <div class="container">
     <h2>👑 hasan card maker 👑</h2>
-    <form method="POST" action="">
-        <div class="form-group">
-            <label for="bin">Enter BIN (Generates 10 Cards):</label>
-            <input type="text" id="bin" name="bin" placeholder="e.g., 541333" required value="<?php echo isset($_POST['bin']) ? htmlspecialchars($_POST['bin']) : ''; ?>">
-        </div>
-        <button type="submit">Generate 10 Cards</button>
-    </form>
+    <div class="form-group">
+        <label for="bin">Enter BIN (Generates 10 Cards):</label>
+        <input type="text" id="bin" name="bin" placeholder="e.g., 541333">
+    </div>
+    <button onclick="generateCards()">Generate 10 Cards</button>
 
-    <?php if (!empty($generated_cards)): ?>
-        <table>
-            <thead>
-                <tr>
-                    <th>SL</th>
-                    <th>Card Combo (Number|MM|YY|CVV)</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($generated_cards as $index => $c): ?>
-                    <tr>
-                        <td><?php echo $index + 1; ?></td>
-                        <td id="card-<?php echo $index; ?>" style="font-family: monospace; letter-spacing: 1px; color: #f3e5ab;">
-                            <?php echo $c['combo']; ?>
-                        </td>
-                        <td>
-                            <button class="copy-btn" onclick="copyToClipboard('card-<?php echo $index; ?>')">Copy</button>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    <?php endif; ?>
+    <table id="resultTable">
+        <thead>
+            <tr>
+                <th>SL</th>
+                <th>Card Combo (Number|MM|YY|CVV)</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="cardTableBody">
+            <!-- JavaScript দিয়ে ডাটা লোড হবে -->
+        </tbody>
+    </table>
 </div>
 
 <div id="toast">Copied to Clipboard!</div>
 
 <script>
+// Luhn Algorithm ফাংশন জাভাস্ক্রিপ্টে
+function generateLuhnChecksum(partialNumber) {
+    let sum = 0;
+    let length = partialNumber.length;
+    let parity = length % 2;
+
+    for (let i = 0; i < length; i++) {
+        let digit = parseInt(partialNumber[i]);
+        if (i % 2 === parity) {
+            digit *= 2;
+            if (digit > 9) {
+                digit -= 9;
+            }
+        }
+        sum += digit;
+    }
+
+    let mod = sum % 10;
+    return (mod === 0) ? 0 : (10 - mod);
+}
+
+function generateCards() {
+    let binInput = document.getElementById('bin').value.replace(/\D/g, '');
+    if (!binInput) {
+        alert('Please enter a valid BIN!');
+        return;
+    }
+
+    let tbody = document.getElementById('cardTableBody');
+    tbody.innerHTML = '';
+
+    for (let i = 0; i < 10; i++) {
+        let remainingLength = 15 - binInput.length;
+        let tempCard = binInput;
+
+        for (let j = 0; j < remainingLength; j++) {
+            tempCard += Math.floor(Math.random() * 10);
+        }
+
+        let checkDigit = generateLuhnChecksum(tempCard);
+        let cardNumber = tempCard + checkDigit;
+
+        // এক্সপায়ার ডেট (মাস এবং বছর)
+        let month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
+        let currentYear = new Date().getFullYear() % 100;
+        let year = currentYear + Math.floor(Math.random() * 4) + 1;
+
+        // CVV
+        let cvv = String(Math.floor(Math.random() * 900) + 100);
+
+        let fullCombo = `${cardNumber}|${month}|${year}|${cvv}`;
+        let rowId = `card-${i}`;
+
+        let row = `<tr>
+            <td>${i + 1}</td>
+            <td id="${rowId}" style="font-family: monospace; letter-spacing: 1px; color: #f3e5ab;">${fullCombo}</td>
+            <td><button class="copy-btn" onclick="copyToClipboard('${rowId}')">Copy</button></td>
+        </tr>`;
+
+        tbody.innerHTML += row;
+    }
+
+    document.getElementById('resultTable').style.display = 'table';
+}
+
 function copyToClipboard(containerId) {
-    var textElement = document.getElementById(containerId).innerText;
-    
+    let textElement = document.getElementById(containerId).innerText;
     navigator.clipboard.writeText(textElement).then(function() {
         showToast();
     }, function(err) {
-        alert('Failed to copy: ', err);
+        alert('Failed to copy');
     });
 }
 
 function showToast() {
-    var toast = document.getElementById("toast");
+    let toast = document.getElementById("toast");
     toast.className = "show";
     setTimeout(function(){ 
         toast.className = toast.className.replace("show", ""); 
