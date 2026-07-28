@@ -71,6 +71,17 @@
             background: linear-gradient(135deg, #e6be40, #c5a034);
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
         }
+        .copy-all-btn {
+            background: #1f1b0d;
+            color: #d4af37;
+            border: 1px solid #d4af37;
+            margin-top: 15px;
+            display: none;
+        }
+        .copy-all-btn:hover {
+            background: #d4af37;
+            color: #0d0d0d;
+        }
         table {
             width: 100%;
             margin-top: 25px;
@@ -147,6 +158,9 @@
         <input type="text" id="bin" name="bin" placeholder="e.g., 541333">
     </div>
     <button onclick="generateCards()">Generate 10 Cards</button>
+    
+    <!-- এক ক্লিকে সব কপি করার বাটন -->
+    <button id="copyAllBtn" class="copy-all-btn" onclick="copyAllCards()">📋 Copy All 10 Cards</button>
 
     <table id="resultTable">
         <thead>
@@ -165,7 +179,8 @@
 <div id="toast">Copied to Clipboard!</div>
 
 <script>
-// Luhn Algorithm ফাংশন জাভাস্ক্রিপ্টে
+let generatedCardsArray = [];
+
 function generateLuhnChecksum(partialNumber) {
     let sum = 0;
     let length = partialNumber.length;
@@ -195,6 +210,7 @@ function generateCards() {
 
     let tbody = document.getElementById('cardTableBody');
     tbody.innerHTML = '';
+    generatedCardsArray = [];
 
     for (let i = 0; i < 10; i++) {
         let remainingLength = 15 - binInput.length;
@@ -207,15 +223,14 @@ function generateCards() {
         let checkDigit = generateLuhnChecksum(tempCard);
         let cardNumber = tempCard + checkDigit;
 
-        // এক্সপায়ার ডেট (মাস এবং বছর)
         let month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
         let currentYear = new Date().getFullYear() % 100;
         let year = currentYear + Math.floor(Math.random() * 4) + 1;
-
-        // CVV
         let cvv = String(Math.floor(Math.random() * 900) + 100);
 
         let fullCombo = `${cardNumber}|${month}|${year}|${cvv}`;
+        generatedCardsArray.push(fullCombo); // অ্যারেতে সেভ করা হলো
+
         let rowId = `card-${i}`;
 
         let row = `<tr>
@@ -228,6 +243,7 @@ function generateCards() {
     }
 
     document.getElementById('resultTable').style.display = 'table';
+    document.getElementById('copyAllBtn').style.display = 'block'; // বাটন শো করবে
 }
 
 function copyToClipboard(containerId) {
@@ -236,6 +252,17 @@ function copyToClipboard(containerId) {
         showToast();
     }, function(err) {
         alert('Failed to copy');
+    });
+}
+
+// একসাথে সব কার্ড কপি করার ফাংশন
+function copyAllCards() {
+    if (generatedCardsArray.length === 0) return;
+    let allText = generatedCardsArray.join('\n');
+    navigator.clipboard.writeText(allText).then(function() {
+        showToast();
+    }, function(err) {
+        alert('Failed to copy all');
     });
 }
 
