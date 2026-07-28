@@ -36,19 +36,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['bin'])) {
 
         $check_digit = generateLuhnChecksum($temp_card);
         $card_number = $temp_card . $check_digit;
+        
+        // স্পেস ছাড়া কার্ড নম্বর (যেমন: 541333xxxxxxxxxx)
         $formatted_card = trim(chunk_split($card_number, 4, ' '));
+        $clean_card = str_replace(' ', '', $formatted_card);
 
         $month = str_pad(mt_rand(1, 12), 2, '0', STR_PAD_LEFT);
         $year = date('y') + mt_rand(1, 4);
         $cvv = str_pad(mt_rand(1, 999), 3, '0', STR_PAD_LEFT);
 
-        // ফুল কম্বো স্ট্রিং (যেমনটি সাধারণত কার্ড জেনারেটরে লাগে: Card|MM|YY|CVV)
-        $full_combo = $formatted_card . '|' . $month . '/' . $year . '|' . $cvv;
+        // ফুল কম্বো স্ট্রিং (Card|MM|YY|CVV)
+        $full_combo = $clean_card . '|' . $month . '|' . $year . '|' . $cvv;
 
         $generated_cards[] = [
-            'card' => $formatted_card,
-            'exp' => $month . '/' . $year,
-            'cvv' => $cvv,
             'combo' => $full_combo
         ];
     }
@@ -164,7 +164,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['bin'])) {
         .copy-btn:hover {
             background: #fff;
         }
-        /* টোস্ট নোটিফিকেশন */
         #toast {
             visibility: hidden;
             min-width: 250px;
@@ -205,14 +204,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['bin'])) {
             <input type="text" id="bin" name="bin" placeholder="e.g., 541333" required value="<?php echo isset($_POST['bin']) ? htmlspecialchars($_POST['bin']) : ''; ?>">
         </div>
         <button type="submit">Generate 10 Cards</button>
-    </main>
+    </form>
 
     <?php if (!empty($generated_cards)): ?>
         <table>
             <thead>
                 <tr>
                     <th>SL</th>
-                    <th>Card Number | Exp | CVV</th>
+                    <th>Card Combo (Number|MM|YY|CVV)</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -239,7 +238,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['bin'])) {
 function copyToClipboard(containerId) {
     var textElement = document.getElementById(containerId).innerText;
     
-    // క్లిప్‌বোর্ডে কপি করার মডার্ন API
     navigator.clipboard.writeText(textElement).then(function() {
         showToast();
     }, function(err) {
